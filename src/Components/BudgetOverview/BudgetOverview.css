@@ -1,0 +1,10 @@
+.budget-overview {
+    text-align: center;
+  }
+  
+  .budget-overview canvas {
+    max-width: 450px;  /* Adjust the width to your preference */
+    max-height: 450px; /* Adjust the height to your preference */
+    margin: 0 auto;    /* Center the chart */
+  }
+  

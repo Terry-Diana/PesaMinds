@@ -1,0 +1,18 @@
+import React, { createContext, useState } from 'react';
+
+interface UserContextProps {
+  user: string | null;
+  setUser: (user: string | null) => void;
+}
+
+export const UserContext = createContext<UserContextProps | undefined>(undefined);
+
+export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<string | null>(null);
+
+  return (
+    <UserContext.Provider value={{ user, setUser }}>
+      {children}
+    </UserContext.Provider>
+  );
+};
