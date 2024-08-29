@@ -1,36 +1,75 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../Services/supabaseClient';
+import { BudgetData} from '../Types/types';
 
-export const useBudgetData = (userId: string) => {
-  const [budgetData, setBudgetData] = useState<any>(null);
+// Define the type for the hook return value
+export interface UseBudgetData {
+  budgetData: BudgetData | null;        // Current budget data
+  saveBudgetData: (data: BudgetData) => void; // Function to save budget data
+}
 
+export const useBudgetData = (userId: string): UseBudgetData => {
+  const [budgetData, setBudgetData] = useState<BudgetData | null>(null);
+
+  // Fetch budget data when the hook is first used or when the userId changes
   useEffect(() => {
-    const fetchData = async () => {
-      const { data, error } = await supabase
-        .from('budgets')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
+    const fetchBudgetData = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('budgets')
+          .select('*')
+          .eq('user_id', userId)
+          .single(); 
 
-      if (error) {
-        console.error('Error fetching data:', error.message);
-      } else {
-        setBudgetData(data);
+        if (error) {
+          throw error;
+        }
+
+        // Transform the fetched data into the correct format
+        if (data) {
+          setBudgetData({
+            income: data.income,
+            expenses: data.expenses || [],
+            categories: data.categories || [],
+            savings: data.savings || 0,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching budget data:', error);
       }
     };
 
-    fetchData();
+    if (userId) {
+      fetchBudgetData();
+    }
   }, [userId]);
 
-  const saveBudgetData = async (data: any) => {
-    const { error } = await supabase
-      .from('budgets')
-      .upsert({ ...data, user_id: userId });
+  // Save budget data to Supabase
+  const saveBudgetData = async (data: BudgetData) => {
+    try {
+      const { error } = await supabase
+        .from('budgets')
+        .upsert({
+          user_id: userId,
+          income: data.income,
+          expenses: data.expenses,
+          categories: data.categories,
+          savings: data.savings,
+        });
 
-    if (error) {
-      console.error('Error saving data:', error.message);
+      if (error) {
+        throw error;
+      }
+
+      // Update state with the new data
+      setBudgetData(data);
+    } catch (error) {
+      console.error('Error saving budget data:', error);
     }
   };
 
-  return { budgetData, saveBudgetData };
+  return {
+    budgetData,
+    saveBudgetData,
+  };
 };
