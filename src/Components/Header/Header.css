@@ -1,18 +1,40 @@
 .header {
-    background-color: #34495e;
-    color: white;
-    padding: 15px 20px;
-    text-align: center;
-    font-size: 1.5rem;
-    font-weight: bold;
-    position: fixed;
-    width: 100%;
-    top: 0;
-    left: 0;
-    z-index: 999;
-  }
-  
-  .App {
-    padding-top: 70px; /* Adjust to match the header height */
-  }
-  
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 999;
+  display: flex;
+  color: white;
+  position: fixed;
+  padding: 8px 8px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  background-color: #34495e;
+}
+
+.logout-container {
+  right: 70px;
+  position: absolute;
+}
+
+.logout-button {
+  border: none; 
+  color: white; 
+  cursor: pointer; 
+  font-size: 0.8em; 
+  padding: 5px 8px;
+  border-radius: 5px; 
+  background-color: #f44336; 
+  transition: background-color 0.3s ease; 
+}
+
+.logout-button:hover {
+  background-color: #d32f2f; 
+}
+
+.App {
+  padding-top: 100px; 
+}

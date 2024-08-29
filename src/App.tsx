@@ -9,8 +9,8 @@ import Income from './Components/Income/Income';
 import Expenses from './Components/Expenses/Expenses';
 import Savings from './Components/Savings/Savings';
 import BudgetOverview from './Components/BudgetOverview/BudgetOverview';
-import SignUp from './Components/Auth/SignUp';
-import Login from './Components/Auth/Login';
+import SignUp from './Components/Auth/SignUp/SignUp';
+import Login from './Components/Auth/Login/Login';
 import Home from './Pages/Home/Home';
 import Game from './Pages/Game/Game';
 import { UserProvider } from './Context/UserContext';
@@ -19,8 +19,19 @@ import './App.css';
 function App() {
   const { user } = useSupabaseAuth();
   const { budgetData, saveBudgetData } = useBudgetData(user?.id || '');
-  const [income, setIncome] = useState(budgetData?.income || 0);
-  const [expenses, setExpenses] = useState(budgetData?.expenses || 0);
+
+  // Set initial states
+  const [income, setIncome] = useState<number>(budgetData?.income || 0);
+  const [expenses, setExpenses] = useState<number>(0); // Initialize as number
+
+  useEffect(() => {
+    if (budgetData) {
+      setIncome(budgetData.income);
+      // Calculate total expenses if budgetData.expenses is an array
+      const totalExpenses = (budgetData.expenses || []).reduce((total, expense) => total + expense.amount, 0);
+      setExpenses(totalExpenses);
+    }
+  }, [budgetData]);
 
   useEffect(() => {
     gsap.from('.app-container', { opacity: 0, duration: 1 });
@@ -28,12 +39,12 @@ function App() {
 
   const handleIncomeChange = (newIncome: number) => {
     setIncome(newIncome);
-    saveBudgetData({ income: newIncome, expenses });
+    saveBudgetData({ income: newIncome, expenses: budgetData?.expenses || [], categories: budgetData?.categories || [], savings: budgetData?.savings || 0 });
   };
 
   const handleExpensesChange = (newExpenses: number) => {
     setExpenses(newExpenses);
-    saveBudgetData({ income, expenses: newExpenses });
+    saveBudgetData({ income, expenses: budgetData?.expenses || [], categories: budgetData?.categories || [], savings: budgetData?.savings || 0 });
   };
 
   if (!user) {
@@ -55,7 +66,7 @@ function App() {
           <Header />
           <Sidebar />
           <main className="main-content">
-          <Income initialIncome={income} onIncomeChange={handleIncomeChange} />
+            <Income initialIncome={income} onIncomeChange={handleIncomeChange} />
             <Expenses initialExpenses={expenses} onExpensesChange={handleExpensesChange} />
             <BudgetOverview income={income} expenses={expenses} />
             <Savings savings={income - expenses} />
