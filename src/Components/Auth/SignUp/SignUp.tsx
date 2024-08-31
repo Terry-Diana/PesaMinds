@@ -1,4 +1,3 @@
-// src/Components/Auth/SignUp.tsx
 import React, { useState, useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { useNavigate, Link } from "react-router-dom";
@@ -57,7 +56,9 @@ const SignUp: React.FC = () => {
     if (error) {
       setError(error.message);
     } else {
-      setMessage("Registration successful! Check your email to confirm details...");
+      setMessage(
+        "Registration successful! Check your email to confirm details..."
+      );
       setTimeout(() => {
         navigate("/login");
       }, 2000);

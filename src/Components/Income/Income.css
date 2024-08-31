@@ -1,16 +1,34 @@
 .income-container {
-  width: 100%;
-  background-color: #ecf0f1;
   padding: 20px;
+  max-width: 600px;
+  margin: auto;
+  border: 1px solid #ddd;
   border-radius: 8px;
-  margin-bottom: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #f9f9f9;
 }
 
-.income-container input {
-  width: 100%;
+.income-container h3 {
+  margin-bottom: 20px;
+}
+
+.income-container .income-input {
+  width: calc(100% - 22px);
   padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
   border-radius: 4px;
-  border: 1px solid #bdc3c7;
-  font-size: 1rem;
+}
+
+.income-container button {
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.income-container button:hover {
+  background-color: #218838;
 }

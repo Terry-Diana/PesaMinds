@@ -1,84 +1,113 @@
 import React, { useState, useEffect } from 'react';
-import { gsap } from 'gsap';
-import { useSupabaseAuth } from './Hooks/useSupabaseAuth';
-import { useBudgetData } from './Hooks/useBudgetData';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Header from './Components/Header/Header';
-import Sidebar from './Components/Sidebar/Sidebar';
+import { supabase } from './Services/supabaseClient';
 import Income from './Components/Income/Income';
 import Expenses from './Components/Expenses/Expenses';
-import Savings from './Components/Savings/Savings';
 import BudgetOverview from './Components/BudgetOverview/BudgetOverview';
-import SignUp from './Components/Auth/SignUp/SignUp';
-import Login from './Components/Auth/Login/Login';
-import Home from './Pages/Home/Home';
-import Game from './Pages/Game/Game';
-import { UserProvider } from './Context/UserContext';
-import './App.css';
+import { useNavigate } from 'react-router-dom';
+import { Expense, BudgetData } from './Types/types';
+import Header from './Components/Header/Header';
+import Sidebar from './Components/Sidebar/Sidebar';
 
-function App() {
-  const { user } = useSupabaseAuth();
-  const { budgetData, saveBudgetData } = useBudgetData(user?.id || '');
+const App: React.FC = () => {
+  const [budgetData, setBudgetData] = useState<BudgetData>({
+    income: 0,
+    expenses: [],
+    categories: [],
+    savings: 0,
+    totalExpenses: 0,
+    remainingBalance: 0,
+    budgetId: '',
+  });
 
-  // Set initial states
-  const [income, setIncome] = useState<number>(budgetData?.income || 0);
-  const [expenses, setExpenses] = useState<number>(0); // Initialize as number
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (budgetData) {
-      setIncome(budgetData.income);
-      // Calculate total expenses if budgetData.expenses is an array
-      const totalExpenses = (budgetData.expenses || []).reduce((total, expense) => total + expense.amount, 0);
-      setExpenses(totalExpenses);
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
+      if (!user) {
+        navigate('/login');
+        return;
+      }
+    };
+
+    const fetchBudgetData = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
+      if (user) {
+        const { data, error } = await supabase
+          .from('budgets')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+        
+          if (data) {
+            setBudgetData({
+              income: data.income || 0,
+              expenses: data.expenses || [], // Default to an empty array
+              categories: data.categories || [], // Default to an empty array
+              savings: data.savings || 0,
+              totalExpenses: data.totalExpenses || 0,
+              remainingBalance: data.remainingBalance || 0,
+              budgetId: data.id || '',
+            });
+        } else if (error) {
+          console.error('Error fetching budget data:', error.message);
+        }
+      }
+    };
+
+    checkUser();
+    fetchBudgetData();
+  }, [navigate]);
+
+   const updateBudgetData = async (newData: Partial<BudgetData>) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
+    if (user) {
+      const updatedData = { ...budgetData, ...newData };
+      setBudgetData(updatedData);
+
+      if (!budgetData.budgetId) {
+        // Create a new row
+        const { data, error } = await supabase
+          .from('budgets')
+          .insert({ ...updatedData, user_id: user.id })
+          .select()
+          .single();
+        
+        if (data) {
+          setBudgetData({ ...updatedData, budgetId: data.id });
+        }
+
+        if (error) {
+          console.error('Error inserting budget data:', error.message);
+        }
+      } else {
+        // Update existing row
+        const { error } = await supabase
+          .from('budgets')
+          .update({ ...updatedData, user_id: user.id })
+          .eq('id', budgetData.budgetId);  // Ensure we're updating the correct row
+
+        if (error) {
+          console.error('Error updating budget data:', error.message);
+        }
+      }
     }
-  }, [budgetData]);
-
-  useEffect(() => {
-    gsap.from('.app-container', { opacity: 0, duration: 1 });
-  }, []);
-
-  const handleIncomeChange = (newIncome: number) => {
-    setIncome(newIncome);
-    saveBudgetData({ income: newIncome, expenses: budgetData?.expenses || [], categories: budgetData?.categories || [], savings: budgetData?.savings || 0 });
   };
-
-  const handleExpensesChange = (newExpenses: number) => {
-    setExpenses(newExpenses);
-    saveBudgetData({ income, expenses: budgetData?.expenses || [], categories: budgetData?.categories || [], savings: budgetData?.savings || 0 });
-  };
-
-  if (!user) {
-    return (
-      <Router>
-        <Routes>
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="*" element={<SignUp />} />
-        </Routes>
-      </Router>
-    );
-  }
 
   return (
     <div className="App">
-      <UserProvider>
-        <Router>
-          <Header />
-          <Sidebar />
-          <main className="main-content">
-            <Income initialIncome={income} onIncomeChange={handleIncomeChange} />
-            <Expenses initialExpenses={expenses} onExpensesChange={handleExpensesChange} />
-            <BudgetOverview income={income} expenses={expenses} />
-            <Savings savings={income - expenses} />
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/game" element={<Game />} />
-            </Routes>
-          </main>
-        </Router>
-      </UserProvider>
+      <Header/>
+      <Sidebar/>
+      <div className='main-content'>
+      <Income income={budgetData.income} updateBudgetData={updateBudgetData} />
+      <Expenses expenses={budgetData.expenses} categories={budgetData.categories} budgetId={budgetData.budgetId}  updateBudgetData={updateBudgetData}  />
+      <BudgetOverview budgetData={budgetData} />
+      </div>
     </div>
   );
-}
+};
 
 export default App;

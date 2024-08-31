@@ -1,6 +1,6 @@
-import React from 'react';
-import './Header.css';
-import Signout from '../Auth/SignOut/SignOut';
+import React from "react";
+import "./Header.css";
+import Signout from "../Auth/SignOut/SignOut";
 
 const Header: React.FC = () => {
   return (
