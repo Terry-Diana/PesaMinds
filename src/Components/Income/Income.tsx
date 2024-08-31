@@ -1,28 +1,49 @@
 import React, { useState } from 'react';
+import { gsap } from 'gsap';
+import { BudgetData } from '../../Types/types';
+import { insertOrUpdateBudget } from '../../Services/budgetService';
+import { useSupabaseAuth } from '../../Hooks/useSupabaseAuth';
 import './Income.css';
 
 interface IncomeProps {
-  initialIncome: number;
-  onIncomeChange: (income: number) => void;
+  income: number;
+  updateBudgetData: (newData: Partial<BudgetData>) => void;
 }
 
-const Income: React.FC<IncomeProps> = ({ initialIncome, onIncomeChange }) => {
-  const [income, setIncome] = useState(initialIncome);
+const Income: React.FC<IncomeProps> = ({ income, updateBudgetData }) => {
+  const [newIncome, setNewIncome] = useState<number>(income);
+  const { user } = useSupabaseAuth(); // Use your custom hook to get the user
 
-  const handleIncomeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newIncome = parseFloat(e.target.value);
-    setIncome(newIncome);
-    onIncomeChange(newIncome);
+  const handleIncomeChange = async () => {
+    if (!user || newIncome === undefined) return;
+
+    const budgetData: BudgetData = { 
+      income: newIncome,
+      expenses: [], 
+      categories: [], 
+      savings: 0, 
+      totalExpenses: 0,
+      remainingBalance: 0,
+      budgetId: '',
+    };
+
+    await insertOrUpdateBudget(user.id, budgetData); // Insert or update budget data in the database
+
+    updateBudgetData({ income: newIncome });
+    gsap.fromTo('.income-input', { scale: 1 }, { scale: 1.1, duration: 0.3, yoyo: true, repeat: 1 });
   };
 
   return (
     <div className="income-container">
-      <h2>Income</h2>
+      <h3>Income</h3>
       <input
+        className="income-input"
         type="number"
-        value={income}
-        onChange={handleIncomeChange}
+        placeholder="Enter your income"
+        value={newIncome || ''}
+        onChange={(e) => setNewIncome(Number(e.target.value))}
       />
+      <button onClick={handleIncomeChange}>Update Income</button>
     </div>
   );
 };

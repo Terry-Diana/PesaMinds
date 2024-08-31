@@ -1,16 +1,77 @@
 .expenses-container {
-  width: 100%;
-  background-color: #ecf0f1;
   padding: 20px;
+  margin: auto;
+  max-width: 600px;
   border-radius: 8px;
-  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.expenses-container input {
-  width: 100%;
+.expenses-container h3 {
+  margin-bottom: 20px;
+}
+
+.expenses-container input[type="number"] {
+  width: calc(100% - 22px);
   padding: 10px;
   border-radius: 4px;
-  border: 1px solid #bdc3c7;
-  font-size: 1rem;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+}
+
+.expenses-container select {
+  width: calc(100% - 22px);
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+}
+
+.expenses-container button {
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-right: 10px;
+  padding: 10px 20px;
+  background-color: #007bff;
+
+}
+
+.expenses-container button:hover {
+  background-color: #0056b3;
+}
+
+.expenses-container .error-message {
+  color: #e74c3c;
+  margin-bottom: 10px;
+}
+
+.expenses-container ul {
+  padding: 0;
+  list-style: none;
+}
+
+.expenses-container li {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.expenses-container li:last-child {
+  border-bottom: none;
+}
+
+.expenses-container .expense-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.expenses-container .expense-item button {
+  background-color: #dc3545;
+}
+
+.expenses-container .expense-item button:hover {
+  background-color: #c82333;
 }
