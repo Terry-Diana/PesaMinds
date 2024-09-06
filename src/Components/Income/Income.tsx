@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { gsap } from 'gsap';
 import { BudgetData } from '../../Types/types';
-import { insertOrUpdateBudget } from '../../Services/budgetService';
+import { insertBudget } from '../../Services/budgetService';
 import { useSupabaseAuth } from '../../Hooks/useSupabaseAuth';
 import './Income.css';
 
@@ -18,16 +18,19 @@ const Income: React.FC<IncomeProps> = ({ income, updateBudgetData }) => {
     if (!user || newIncome === undefined) return;
 
     const budgetData: BudgetData = { 
+      id: '', // Initialize if not available
+      user_id: user.id, // Should be available from session
+      created_at: '', // Initialize if not available
       income: newIncome,
       expenses: [], 
-      categories: [], 
-      savings: 0, 
+      categories: [],
+      savings: 0,
       totalExpenses: 0,
       remainingBalance: 0,
-      budgetId: '',
     };
+    
 
-    await insertOrUpdateBudget(user.id, budgetData); // Insert or update budget data in the database
+    await insertBudget(user.id, budgetData); // Insert or update budget data in the database
 
     updateBudgetData({ income: newIncome });
     gsap.fromTo('.income-input', { scale: 1 }, { scale: 1.1, duration: 0.3, yoyo: true, repeat: 1 });
