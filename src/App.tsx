@@ -10,14 +10,18 @@ import Sidebar from './Components/Sidebar/Sidebar';
 
 const App: React.FC = () => {
   const [budgetData, setBudgetData] = useState<BudgetData>({
+    id: '', // Initialize as an empty string
+    user_id: '', // Initialize as an empty string
+    created_at: '', // Initialize as an empty string
     income: 0,
     expenses: [],
     categories: [],
     savings: 0,
     totalExpenses: 0,
     remainingBalance: 0,
-    budgetId: '',
   });
+
+  const [budgets, setBudgets] = useState<BudgetData[]>([]);  // Add this to hold multiple budgets
 
   const navigate = useNavigate();
 
@@ -38,19 +42,24 @@ const App: React.FC = () => {
         const { data, error } = await supabase
           .from('budgets')
           .select('*')
-          .eq('user_id', user.id)
-          .single();
+          .eq('user_id', user.id);
         
-          if (data) {
-            setBudgetData({
-              income: data.income || 0,
-              expenses: data.expenses || [], // Default to an empty array
-              categories: data.categories || [], // Default to an empty array
-              savings: data.savings || 0,
-              totalExpenses: data.totalExpenses || 0,
-              remainingBalance: data.remainingBalance || 0,
-              budgetId: data.id || '',
-            });
+        if (data) {
+          setBudgets(data);  // Store all budgets
+          const currentBudget = data.find((budget: BudgetData) => {
+            const budgetDate = new Date(budget.created_at);
+            const now = new Date();
+            return (
+              budgetDate.getMonth() === now.getMonth() &&
+              budgetDate.getFullYear() === now.getFullYear()
+            );
+          });
+
+          if (currentBudget) {
+            setBudgetData(currentBudget);  // Set the current budget data
+          } else {
+            console.warn("No current budget found.");
+          }
         } else if (error) {
           console.error('Error fetching budget data:', error.message);
         }
@@ -61,14 +70,14 @@ const App: React.FC = () => {
     fetchBudgetData();
   }, [navigate]);
 
-   const updateBudgetData = async (newData: Partial<BudgetData>) => {
+  const updateBudgetData = async (newData: Partial<BudgetData>) => {
     const { data: { session } } = await supabase.auth.getSession();
     const user = session?.user;
     if (user) {
       const updatedData = { ...budgetData, ...newData };
       setBudgetData(updatedData);
 
-      if (!budgetData.budgetId) {
+      if (!budgetData.id) {
         // Create a new row
         const { data, error } = await supabase
           .from('budgets')
@@ -77,7 +86,8 @@ const App: React.FC = () => {
           .single();
         
         if (data) {
-          setBudgetData({ ...updatedData, budgetId: data.id });
+          setBudgetData({ ...updatedData, id: data.id });
+          setBudgets((prevBudgets) => [...prevBudgets, data]); // Add new budget to list
         }
 
         if (error) {
@@ -88,7 +98,7 @@ const App: React.FC = () => {
         const { error } = await supabase
           .from('budgets')
           .update({ ...updatedData, user_id: user.id })
-          .eq('id', budgetData.budgetId);  // Ensure we're updating the correct row
+          .eq('id', budgetData.id);  // Ensure we're updating the correct row
 
         if (error) {
           console.error('Error updating budget data:', error.message);
@@ -102,12 +112,13 @@ const App: React.FC = () => {
       <Header/>
       <Sidebar/>
       <div className='main-content'>
-      <Income income={budgetData.income} updateBudgetData={updateBudgetData} />
-      <Expenses expenses={budgetData.expenses} categories={budgetData.categories} budgetId={budgetData.budgetId}  updateBudgetData={updateBudgetData}  />
-      <BudgetOverview budgetData={budgetData} />
+        <Income income={budgetData.income} updateBudgetData={updateBudgetData} />
+        <Expenses expenses={budgetData.expenses} categories={budgetData.categories} budgetId={budgetData.id}  budgets={budgets} updateBudgetData={updateBudgetData}  />
+        <BudgetOverview budgetData={budgetData} />
       </div>
     </div>
   );
 };
+
 
 export default App;

@@ -4,15 +4,19 @@ export interface Expense {
   amount: number;
   customCategory?: string;
   budgetId: string;
+  budgets: number;
 }
 
-export interface BudgetData {
+export type BudgetData = {
+  id: string; // Budget ID
+  user_id: string; // User ID
+  created_at: string; // Date when the budget was created
   income: number;
   expenses: Expense[];
   categories: string[];
   savings: number;
-  totalExpenses: number; 
+  totalExpenses: number;
   remainingBalance: number;
-  budgetId: string;
+};
 
-}
+

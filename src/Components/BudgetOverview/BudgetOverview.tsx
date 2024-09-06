@@ -4,6 +4,7 @@ import { Chart, registerables } from "chart.js";
 import "./BudgetOverview.css";
 
 Chart.register(...registerables);
+
 interface BudgetOverviewProps {
   budgetData: BudgetData;
 }
@@ -30,7 +31,8 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ budgetData }) => {
         chartInstance.current.destroy();
       }
 
-      const totalExpenses = budgetData.expenses.reduce(
+      // Ensure that `budgetData.expenses` is always an array
+      const totalExpenses = (budgetData.expenses || []).reduce(
         (acc, curr) => acc + curr.amount,
         0
       );
@@ -40,17 +42,17 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ budgetData }) => {
         type: "pie",
         data: {
           labels: [
-            ...new Set(budgetData.expenses.map((exp) => exp.category)),
+            ...new Set((budgetData.expenses || []).map((exp) => exp.category)),
             "Remaining Balance",
           ],
           datasets: [
             {
               data: [
-                ...budgetData.expenses.map((exp) => exp.amount),
+                ...(budgetData.expenses || []).map((exp) => exp.amount),
                 remainingBalance,
               ],
               backgroundColor: [
-                ...budgetData.expenses.map(
+                ...(budgetData.expenses || []).map(
                   (exp) =>
                     categoryColors[exp.category] || categoryColors["Other"]
                 ),
@@ -77,7 +79,7 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ budgetData }) => {
         },
       });
     }
-  }, [budgetData]);
+  });
 
   return (
     <div className="budget-overview-container">
@@ -86,12 +88,12 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ budgetData }) => {
       <p>Total Income: ${budgetData.income}</p>
       <p>
         Total Expenses: $
-        {budgetData.expenses.reduce((acc, curr) => acc + curr.amount, 0)}
+        {(budgetData.expenses || []).reduce((acc, curr) => acc + curr.amount, 0)}
       </p>
       <p>
         Remaining Balance: $
         {budgetData.income -
-          budgetData.expenses.reduce((acc, curr) => acc + curr.amount, 0)}
+          (budgetData.expenses || []).reduce((acc, curr) => acc + curr.amount, 0)}
       </p>
     </div>
   );
