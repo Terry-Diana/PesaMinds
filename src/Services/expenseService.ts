@@ -67,3 +67,5 @@ export const deleteExpense = async (expenseId: string) => {
     throw error;
   }
 };
+
+

@@ -3,10 +3,12 @@ import { supabase } from './Services/supabaseClient';
 import Income from './Components/Income/Income';
 import Expenses from './Components/Expenses/Expenses';
 import BudgetOverview from './Components/BudgetOverview/BudgetOverview';
-import { useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, useNavigate, Routes } from 'react-router-dom';
 import { Expense, BudgetData } from './Types/types';
 import Header from './Components/Header/Header';
 import Sidebar from './Components/Sidebar/Sidebar';
+import Reports from './Pages/Reports/Reports';
+import Home from './Pages/Home/Home';
 
 const App: React.FC = () => {
   const [budgetData, setBudgetData] = useState<BudgetData>({
@@ -95,10 +97,18 @@ const App: React.FC = () => {
         }
       } else {
         // Update existing row
-        const { error } = await supabase
-          .from('budgets')
-          .update({ ...updatedData, user_id: user.id })
-          .eq('id', budgetData.id);  // Ensure we're updating the correct row
+// Update existing row in the budgets table
+const { error } = await supabase
+  .from('budgets')
+  .update({
+    income: updatedData.income,
+    savings: updatedData.savings,
+    totalExpenses: updatedData.totalExpenses,
+    remainingBalance: updatedData.remainingBalance,
+    user_id: user.id
+  })
+  .eq('id', budgetData.id);  // Ensure we're updating the correct row
+
 
         if (error) {
           console.error('Error updating budget data:', error.message);
@@ -115,6 +125,11 @@ const App: React.FC = () => {
         <Income income={budgetData.income} updateBudgetData={updateBudgetData} />
         <Expenses expenses={budgetData.expenses} categories={budgetData.categories} budgetId={budgetData.id}  budgets={budgets} updateBudgetData={updateBudgetData}  />
         <BudgetOverview budgetData={budgetData} />
+        <Routes>
+        {/* Other routes */}
+        <Route path="/" Component={Home} />
+        <Route path="/reports" Component={Reports} />
+        </Routes>
       </div>
     </div>
   );
