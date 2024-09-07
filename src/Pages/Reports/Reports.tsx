@@ -1,62 +1,67 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Chart, registerables } from "chart.js";
-import { fetchMonthlyIncomeExpenses, fetchCategoryExpenses } from "../../Services/reportService";
+import {
+  fetchMonthlyIncomeExpenses,
+  fetchCategoryExpenses,
+} from "../../Services/reportService";
 import { supabase } from "../../Services/supabaseClient";
+import "./Reports.css";
 
 Chart.register(...registerables);
 
 const Reports: React.FC = () => {
-  const [monthlyData, setMonthlyData] = useState<{ month: string; income: number; expenses: number }[]>([]);
-  const [categoryData, setCategoryData] = useState<{ month: string; total_category_expenses: number }[]>([]);
+  const [monthlyData, setMonthlyData] = useState<
+    { month: string; income: number; expenses: number }[]
+  >([]);
+  const [categoryData, setCategoryData] = useState<
+    { month: string; total_category_expenses: number }[]
+  >([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [user, setUser] = useState<{ id: string } | null>(null);
-  
-  // Refs to store chart instances
+
   const monthlyChartRef = useRef<Chart | null>(null);
   const categoryChartRef = useRef<Chart | null>(null);
 
-  // Fetch authenticated user info
   useEffect(() => {
     const fetchUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (session?.user) {
-        setUser(session.user); // Ensure session.user is defined
+        setUser(session.user);
       }
     };
 
     fetchUser();
   }, []);
 
-  // Fetch monthly income and expenses when component mounts
   useEffect(() => {
     if (user) {
       fetchMonthlyIncomeExpenses(user.id).then((data) => {
         setMonthlyData(data);
-        renderMonthlyChart(data); // Render the chart when data is fetched
+        renderMonthlyChart(data);
       });
     }
   }, [user]);
 
-  // Fetch category-based expenses when a category is selected
   useEffect(() => {
     if (user && selectedCategory) {
       fetchCategoryExpenses(user.id, selectedCategory).then((data) => {
         setCategoryData(data);
-        renderCategoryChart(data); // Render the chart when data is fetched
+        renderCategoryChart(data);
       });
     }
   }, [user, selectedCategory]);
 
-  // Function to render the monthly income vs. expenses chart
-  const renderMonthlyChart = (data: { month: string; income: number; expenses: number }[]) => {
+  const renderMonthlyChart = (
+    data: { month: string; income: number; expenses: number }[]
+  ) => {
     const ctx = document.getElementById("monthlyChart") as HTMLCanvasElement;
 
-    // Destroy existing chart if it exists
     if (monthlyChartRef.current) {
       monthlyChartRef.current.destroy();
     }
 
-    // Create new chart and store the instance in ref
     monthlyChartRef.current = new Chart(ctx, {
       type: "bar",
       data: {
@@ -88,16 +93,15 @@ const Reports: React.FC = () => {
     });
   };
 
-  // Function to render the category-based expenses chart
-  const renderCategoryChart = (data: { month: string; total_category_expenses: number }[]) => {
+  const renderCategoryChart = (
+    data: { month: string; total_category_expenses: number }[]
+  ) => {
     const ctx = document.getElementById("categoryChart") as HTMLCanvasElement;
 
-    // Destroy existing chart if it exists
     if (categoryChartRef.current) {
       categoryChartRef.current.destroy();
     }
 
-    // Create new chart and store the instance in ref
     categoryChartRef.current = new Chart(ctx, {
       type: "line",
       data: {
@@ -127,13 +131,11 @@ const Reports: React.FC = () => {
     <div className="reports-page">
       <h2>Financial Reports</h2>
 
-      {/* Monthly Income vs Expenses Chart */}
       <div className="chart-container">
         <h3>Monthly Income vs. Expenses</h3>
         <canvas id="monthlyChart"></canvas>
       </div>
 
-      {/* Category-based Expenses Chart */}
       <div className="chart-container">
         <h3>Category-based Expenses</h3>
         <select
@@ -142,7 +144,21 @@ const Reports: React.FC = () => {
         >
           <option value="">Select a Category</option>
           <option value="Healthcare">Healthcare</option>
+          <option value="Food">Food</option>
+          <option value="Transport">Transport</option>
           <option value="Rent">Rent</option>
+          <option value="Utilities">Utilities</option>
+          <option value="Entertainment">Entertainment</option>
+          <option value="Education">Education</option>
+          <option value="Education">Debt</option>
+          <option value="Insurance">Insurance</option>
+          <option value="Clothing">Clothing</option>
+          <option value="Repairs">Repairs</option>
+          <option value="Household">HouseholdSupplies</option>
+          <option value="Retirement">Retirement</option>
+          <option value="Gifts">GiftsDonations</option>
+          <option value="Personal">Personal</option>
+          <option value="Savings">Savings</option>
           {/* Add other categories as necessary */}
         </select>
         <canvas id="categoryChart"></canvas>

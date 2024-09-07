@@ -8,9 +8,9 @@ export interface Expense {
 }
 
 export type BudgetData = {
-  id: string; // Budget ID
-  user_id: string; // User ID
-  created_at: string; // Date when the budget was created
+  id: string;
+  user_id: string;
+  created_at: string;
   income: number;
   expenses: Expense[];
   categories: string[];

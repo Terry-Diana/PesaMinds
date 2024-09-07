@@ -17,11 +17,20 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ budgetData }) => {
     Food: "#2ecc71",
     Transport: "#e74c3c",
     Utilities: "#3498db",
-    Rent: "#f39c12",
-    Entertainment: "#9b59b6",
+    Rent: "#800000",
+    Entertainment: "#32012f",
     Healthcare: "#1abc9c",
     Education: "#e67e22",
-    Other: "#95a5a6",
+    Debt: "#1230ae",
+    Insurance: "#00712d",
+    Clothing: "#f5004f",
+    Repairs: "#c40c0c",
+    HouseholdSupplies: "#D20062",
+    Retirement: "#EF9C66",
+    GiftsDonations: "#FA7070",
+    Personal: "#910A67",
+    Savings: "#3D3B40",
+    Other: "#ac87C5",
     "Remaining Balance": "#7f8c8d",
   };
 
@@ -31,7 +40,6 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ budgetData }) => {
         chartInstance.current.destroy();
       }
 
-      // Ensure that `budgetData.expenses` is always an array
       const totalExpenses = (budgetData.expenses || []).reduce(
         (acc, curr) => acc + curr.amount,
         0
@@ -70,8 +78,9 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ budgetData }) => {
             tooltip: {
               callbacks: {
                 label: (context) => {
-                  const label = context.dataset.label || "";
-                  return `${label}: $${context.raw}`;
+                  const label = context.label || "";
+                  const value = context.raw;
+                  return `${label}: $${value}`;
                 },
               },
             },
@@ -79,7 +88,13 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ budgetData }) => {
         },
       });
     }
-  });
+
+    return () => {
+      if (chartInstance.current) {
+        chartInstance.current.destroy();
+      }
+    };
+  }, [budgetData]); 
 
   return (
     <div className="budget-overview-container">
@@ -88,12 +103,18 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ budgetData }) => {
       <p>Total Income: ${budgetData.income}</p>
       <p>
         Total Expenses: $
-        {(budgetData.expenses || []).reduce((acc, curr) => acc + curr.amount, 0)}
+        {(budgetData.expenses || []).reduce(
+          (acc, curr) => acc + curr.amount,
+          0
+        )}
       </p>
       <p>
         Remaining Balance: $
         {budgetData.income -
-          (budgetData.expenses || []).reduce((acc, curr) => acc + curr.amount, 0)}
+          (budgetData.expenses || []).reduce(
+            (acc, curr) => acc + curr.amount,
+            0
+          )}
       </p>
     </div>
   );

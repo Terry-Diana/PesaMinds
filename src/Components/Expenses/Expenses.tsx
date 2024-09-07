@@ -9,15 +9,14 @@ interface ExpensesProps {
   expenses: Expense[];
   categories: string[];
   budgetId: string;
-  budgets: BudgetData[]; 
+  budgets: BudgetData[];
   updateBudgetData: (newData: Partial<BudgetData>) => void;
-  
 }
 
 const Expenses: React.FC<ExpensesProps> = ({
   expenses = [],
   categories = [],
-  budgets = [], 
+  budgets = [],
   updateBudgetData,
 }) => {
   const [newExpense, setNewExpense] = useState<Expense>({
@@ -43,10 +42,18 @@ const Expenses: React.FC<ExpensesProps> = ({
     "Entertainment",
     "Healthcare",
     "Education",
+    "Debt",
+    "Insurance",
+    "Clothing",
+    "Repairs",
+    "HouseholdSupplies",
+    "Retirement",
+    "GiftsDonations",
+    "Personal",
+    "Savings",
   ];
 
   const addExpense = async () => {
-    // Step 1: Validate input fields
     if (
       !user ||
       newExpense.amount <= 0 ||
@@ -68,7 +75,6 @@ const Expenses: React.FC<ExpensesProps> = ({
       return;
     }
 
-    // Step 2: Select the correct budget ID based on criteria (e.g., current month)
     const selectedBudget = budgets.find((budget) => {
       const budgetDate = new Date(budget.created_at);
       const now = new Date();
@@ -88,10 +94,13 @@ const Expenses: React.FC<ExpensesProps> = ({
     const categoryToUse =
       newExpense.category === "Other" ? customCategory : newExpense.category;
 
-    // Step 3: Update or insert the expense
     if (editingIndex !== null && newExpense.id) {
-      const updatedExpense = { ...newExpense, category: categoryToUse, budgetId };
-      await insertExpense(user.id, budgetId, updatedExpense); // Update the existing expense
+      const updatedExpense = {
+        ...newExpense,
+        category: categoryToUse,
+        budgetId,
+      };
+      await insertExpense(user.id, budgetId, updatedExpense);
 
       const updatedExpenses = expenses.map((exp, index) =>
         index === editingIndex ? updatedExpense : exp
@@ -99,20 +108,36 @@ const Expenses: React.FC<ExpensesProps> = ({
 
       updateBudgetData({ expenses: updatedExpenses });
     } else {
-      const expenseToSave = { ...newExpense, category: categoryToUse, budgetId };
+      const expenseToSave = {
+        ...newExpense,
+        category: categoryToUse,
+        budgetId,
+      };
 
-      const { data, error } = await insertExpense(user.id, budgetId, expenseToSave);
+      const { data, error } = await insertExpense(
+        user.id,
+        budgetId,
+        expenseToSave
+      );
       if (data) {
-        const updatedExpenses = [...expenses, { ...expenseToSave, id: data.id }];
+        const updatedExpenses = [
+          ...expenses,
+          { ...expenseToSave, id: data.id },
+        ];
         updateBudgetData({ expenses: updatedExpenses });
       } else {
         console.error("Error inserting new expense:", error?.message);
       }
     }
 
-    // Reset the form
     gsap.fromTo(".expense-item", { opacity: 0 }, { opacity: 1, duration: 0.5 });
-    setNewExpense({ id: "", category: "", amount: 0, budgetId: "" , budgets: 0});
+    setNewExpense({
+      id: "",
+      category: "",
+      amount: 0,
+      budgetId: "",
+      budgets: 0,
+    });
     setCustomCategory("");
     setShowCustomCategoryInput(false);
     setErrorMessage(null);
