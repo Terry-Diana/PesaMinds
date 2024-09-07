@@ -19,4 +19,12 @@ export type BudgetData = {
   remainingBalance: number;
 };
 
+export interface IncomeData {
+  created_at: string;
+  income: number;
+}
 
+export interface ExpenseData {
+  created_at: string;
+  amount: number;
+}
