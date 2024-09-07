@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { gsap } from 'gsap';
-import './Sidebar.css';
+import { gsap } from "gsap";
+import "./Sidebar.css";
 
 const Sidebar: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const toggleSidebar = () => {
     if (isCollapsed) {
-      gsap.to('.sidebar', { x: -200, duration: 1 });
-      gsap.to('.main-content', { marginLeft: 0, duration: 1 });
+      gsap.to(".sidebar", { x: -200, duration: 1 });
+      gsap.to(".main-content", { marginLeft: 0, duration: 1 });
     } else {
-      gsap.to('.sidebar', { x: 0, duration: 1 });
-      gsap.to('.main-content', { marginLeft: 200, duration: 1 });
+      gsap.to(".sidebar", { x: 0, duration: 1 });
+      gsap.to(".main-content", { marginLeft: 200, duration: 1 });
     }
     setIsCollapsed(!isCollapsed);
   };
@@ -20,13 +20,25 @@ const Sidebar: React.FC = () => {
   return (
     <aside className="sidebar">
       <button className="collapse-button" onClick={toggleSidebar}>
-        {isCollapsed ? '>' : '<'}
+        {isCollapsed ? ">" : "<"}
       </button>
       <ul>
-        <li><Link to="/">Home</Link></li>
-        <li>Expenses</li>
-        <li>Budget Overview</li>
-        <li><Link to="/reports">Reports</Link> </li>
+        <li>
+          <Link className="page-link" to="/">
+            Home
+          </Link>
+        </li>
+        <li>
+          <Link className="page-link" to="/reports">
+            Reports
+          </Link>
+        </li>
+        <li>
+          <Link className="page-link" to="/blogs">
+            Blogs
+          </Link>
+        </li>
+
       </ul>
     </aside>
   );

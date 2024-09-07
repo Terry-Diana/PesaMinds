@@ -1,11 +1,11 @@
 .income-container {
+  margin: auto;
   padding: 20px;
   max-width: 600px;
-  margin: auto;
-  border: 1px solid #ddd;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
   background-color: #f9f9f9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .income-container h3 {
@@ -13,20 +13,20 @@
 }
 
 .income-container .income-input {
-  width: calc(100% - 22px);
   padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
   border-radius: 4px;
+  margin-bottom: 10px;
+  width: calc(100% - 22px);
+  border: 1px solid #ccc;
 }
 
 .income-container button {
-  padding: 10px 20px;
-  background-color: #28a745;
-  color: #fff;
   border: none;
-  border-radius: 4px;
+  color: #fff;
   cursor: pointer;
+  padding: 10px 20px;
+  border-radius: 4px;
+  background-color: #28a745;
 }
 
 .income-container button:hover {
