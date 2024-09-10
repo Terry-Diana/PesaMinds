@@ -28,3 +28,10 @@ export interface ExpenseData {
   created_at: string;
   amount: number;
 }
+
+
+export type Video = {
+  thumbnail: string;
+  title: string;
+  videoId: string;
+};
