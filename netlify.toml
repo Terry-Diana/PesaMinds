@@ -1,12 +1,12 @@
-  [build]
+[build]
   command = "CI=false npm run build"
-   publish = "build"
+  publish = "build"
+
+[functions]
+  directory = "netlify/functions"
 
 [[plugins]]
-  package = "@netlify/plugin-scheduled-functions"
+  package = "@netlify/plugin-functions-core"
 
 [functions.schedule-fetch-videos]
   cron = "0 0 */5 * *"  # Runs every 5 days
-
-
-
