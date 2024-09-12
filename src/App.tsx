@@ -17,17 +17,17 @@ const App: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkUser = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      const user = session?.user;
-      if (!user) {
-        navigate("/login");
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (!session?.user) {
+          navigate("/login");
+        }
       }
-    };
+    );
 
-    checkUser();
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, [navigate]);
 
   return (
@@ -36,11 +36,12 @@ const App: React.FC = () => {
       <Sidebar />
       <div className="main-content">
         <Routes>
-        <Route path="/" element={<Login />} />
-          <Route path="/home" element={<Home />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/blogs" element={<Blogs />} />
-          {/* Add more routes if needed */}
+          {/* If no route matches, redirect to home */}
+          <Route path="*" element={<Home />} />
         </Routes>
       </div>
     </div>
