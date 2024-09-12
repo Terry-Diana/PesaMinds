@@ -35,3 +35,11 @@ export type Video = {
   title: string;
   videoId: string;
 };
+
+export type Article = {
+  id: number;
+  title: string;
+  summary: string;
+  link: string;
+  image: string; 
+};

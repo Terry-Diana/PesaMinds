@@ -1,5 +1,6 @@
 import React from "react";
 import VideoComponent from "../../Components/Videos/Videos";
+import ArticlesData from "../../Components/Articles/ArticleData";
 import "./Blogs.css";
 
 const Blogs: React.FC = () => {
@@ -7,12 +8,7 @@ const Blogs: React.FC = () => {
     <div className="blog-page">
       <div className="articles-section">
         <h2>Articles</h2>
-        <div className="grid-container">
-          <div className="grid-item">Article 1</div>
-          <div className="grid-item">Article 2</div>
-          <div className="grid-item">Article 3</div>
-          {/* More articles */}
-        </div>
+        <ArticlesData />
       </div>
 
       <div className="videos-section">
