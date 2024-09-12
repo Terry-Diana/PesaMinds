@@ -23,13 +23,8 @@ const Sidebar: React.FC = () => {
         {isCollapsed ? ">" : "<"}
       </button>
       <ul>
-      <li>
-          <Link className="page-link" to="/">
-            Login/Register
-          </Link>
-        </li>
         <li>
-          <Link className="page-link" to="/home">
+          <Link className="page-link" to="/">
             Home
           </Link>
         </li>
@@ -43,7 +38,11 @@ const Sidebar: React.FC = () => {
             Blogs
           </Link>
         </li>
-
+        <li>
+          <Link className="page-link" to="/login">
+            Login/SignUp
+          </Link>
+        </li>
 
       </ul>
     </aside>

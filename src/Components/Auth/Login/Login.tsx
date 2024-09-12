@@ -33,7 +33,7 @@ const Login: React.FC = () => {
         { opacity: 0 },
         { opacity: 1, duration: 1 }
       );
-      setTimeout(() => navigate("/"), 2000);
+      setTimeout(() => navigate("/home"), 2000);
     }
   };
 
