@@ -1,12 +1,5 @@
 import React from "react";
-
-// Define the type for article props
-type Article = {
-  id: number;
-  title: string;
-  summary: string;
-  link: string;
-};
+import { Article } from "../../Types/types";
 
 type ArticleComponentProps = {
   articles: Article[];
@@ -15,11 +8,15 @@ type ArticleComponentProps = {
 const ArticleComponent: React.FC<ArticleComponentProps> = ({ articles }) => {
   return (
     <div className="articles-container">
-      <h2>Latest Articles</h2>
       {articles.length > 0 ? (
-        <ul>
+        <ul className="articles-grid">
           {articles.map((article) => (
             <li key={article.id} className="article-item">
+              <img
+                src={article.image}
+                alt={article.title}
+                className="article-image"
+              />
               <h3>{article.title}</h3>
               <p>{article.summary}</p>
               <a href={article.link} target="_blank" rel="noopener noreferrer">
