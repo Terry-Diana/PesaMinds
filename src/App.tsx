@@ -11,6 +11,7 @@ import Sidebar from "./Components/Sidebar/Sidebar";
 import Reports from "./Pages/Reports/Reports";
 import Blogs from "./Pages/Blogs/Blogs";
 import Home from "./Pages/Home/Home";
+import Login from "./Components/Auth/Login/Login";
 
 const App: React.FC = () => {
   const navigate = useNavigate();
@@ -35,7 +36,8 @@ const App: React.FC = () => {
       <Sidebar />
       <div className="main-content">
         <Routes>
-          <Route path="/" element={<Home />} />
+        <Route path="/" element={<Login />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/blogs" element={<Blogs />} />
           {/* Add more routes if needed */}
