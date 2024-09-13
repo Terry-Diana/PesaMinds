@@ -34,6 +34,7 @@
 }
 
 .page-link{
+  display: block;
   text-decoration: none;
   color: antiquewhite;
 }
