@@ -12,6 +12,7 @@ import Reports from "./Pages/Reports/Reports";
 import Blogs from "./Pages/Blogs/Blogs";
 import Home from "./Pages/Home/Home";
 import Login from "./Components/Auth/Login/Login";
+import SignUp from "./Components/Auth/SignUp/SignUp";
 
 const App: React.FC = () => {
   const navigate = useNavigate();
@@ -19,7 +20,8 @@ const App: React.FC = () => {
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        if (!session?.user) {
+        const currentPath = window.location.pathname;
+        if (!session?.user && currentPath !== "/signup") {
           navigate("/login");
         }
       }
@@ -38,6 +40,7 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/blogs" element={<Blogs />} />
           {/* If no route matches, redirect to home */}
