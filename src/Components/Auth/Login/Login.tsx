@@ -1,15 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { gsap } from "gsap";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "../../../Services/supabaseClient";
 import "./Login.css";
 
-const Login: React.FC = () => {
+interface LoginProps {
+  captchaVerified: boolean; // Accept captchaVerified prop
+}
+
+const Login: React.FC<LoginProps> = ({ captchaVerified }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
+  const errorRef = useRef<HTMLParagraphElement | null>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (errorRef.current && error) {
+      gsap.fromTo(
+        errorRef.current,
+        { opacity: 0, y: -20 },
+        { opacity: 1, y: 0, duration: 0.5 }
+      );
+    }
+  }, [error]);
 
   const handleLogin = async () => {
     const { error } = await supabase.auth.signInWithPassword({
@@ -21,9 +36,9 @@ const Login: React.FC = () => {
       setError(error.message);
       setSuccess(false);
       gsap.fromTo(
-        ".error-message",
-        { opacity: 0 },
-        { opacity: 1, duration: 1 }
+        errorRef.current,
+        { opacity: 0, y: -20 },
+        { opacity: 1, y: 0, duration: 0.5 }
       );
     } else {
       setError(null);
@@ -52,12 +67,13 @@ const Login: React.FC = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <button onClick={handleLogin}>Login</button>
-      {error && <p className="error-message">{error}</p>}
+      <button onClick={handleLogin} disabled={!captchaVerified}>Login</button> {/* Disable if captcha is not verified */}
+      {error && (
+        <p ref={errorRef} className="error-message">{error}</p>
+      )}
       {success && (
         <p className="success-message">Login successful! Redirecting...</p>
       )}
-
       <p className="signup-message">
         Do not have an account? <Link to="/signup">Sign Up</Link>
       </p>
