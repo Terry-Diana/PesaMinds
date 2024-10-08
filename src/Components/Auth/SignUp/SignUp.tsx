@@ -4,18 +4,21 @@ import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "../../../Services/supabaseClient";
 import "./SignUp.css";
 
-const SignUp: React.FC = () => {
+interface SignUpProps {
+  captchaVerified: boolean; // Accept captchaVerified prop
+}
+
+const SignUp: React.FC<SignUpProps> = ({ captchaVerified }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
-  const navigate = useNavigate();
-
   const errorRef = useRef<HTMLParagraphElement | null>(null);
   const messageRef = useRef<HTMLParagraphElement | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (errorRef.current) {
+    if (errorRef.current && error) {
       gsap.fromTo(
         errorRef.current,
         { opacity: 0, y: -20 },
@@ -25,7 +28,7 @@ const SignUp: React.FC = () => {
   }, [error]);
 
   useEffect(() => {
-    if (messageRef.current) {
+    if (messageRef.current && message) {
       gsap.fromTo(
         messageRef.current,
         { opacity: 0, y: -20 },
@@ -69,14 +72,10 @@ const SignUp: React.FC = () => {
     <div className="signup-container">
       <h2>Sign Up</h2>
       {error && (
-        <p ref={errorRef} className="error">
-          {error}
-        </p>
+        <p ref={errorRef} className="error">{error}</p>
       )}
       {message && (
-        <p ref={messageRef} className="message">
-          {message}
-        </p>
+        <p ref={messageRef} className="message">{message}</p>
       )}
       <input
         type="email"
@@ -90,8 +89,7 @@ const SignUp: React.FC = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <button onClick={handleSignUp}>Sign Up</button>
-
+      <button onClick={handleSignUp} disabled={!captchaVerified}>Sign Up</button> {/* Disable if captcha is not verified */}
       <p className="login-message">
         Already have an account? <Link to="/login">Login</Link>
       </p>
