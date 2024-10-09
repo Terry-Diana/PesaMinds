@@ -2,13 +2,15 @@ import React, { useState, useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "../../../Services/supabaseClient";
+import Recaptcha from "../../Recaptcha/Recaptcha";
 import "./SignUp.css";
 
 interface SignUpProps {
-  captchaVerified: boolean; // Accept captchaVerified prop
+  captchaVerified: boolean; 
+  onCaptchaVerified: (verified: boolean) => void;
 }
 
-const SignUp: React.FC<SignUpProps> = ({ captchaVerified }) => {
+const SignUp: React.FC<SignUpProps> = ({ captchaVerified, onCaptchaVerified }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -41,6 +43,11 @@ const SignUp: React.FC<SignUpProps> = ({ captchaVerified }) => {
     setError(null);
     setMessage(null);
 
+    if (!captchaVerified) {
+      setError("Please complete the CAPTCHA.");
+      return;
+    }
+
     if (!/\S+@\S+\.\S+/.test(email)) {
       setError("Please enter a valid email address.");
       return;
@@ -59,9 +66,7 @@ const SignUp: React.FC<SignUpProps> = ({ captchaVerified }) => {
     if (error) {
       setError(error.message);
     } else {
-      setMessage(
-        "Registration successful! Check your email to confirm details..."
-      );
+      setMessage("Registration successful! Check your email to confirm details...");
       setTimeout(() => {
         navigate("/login");
       }, 2000);
@@ -71,12 +76,11 @@ const SignUp: React.FC<SignUpProps> = ({ captchaVerified }) => {
   return (
     <div className="signup-container">
       <h2>Sign Up</h2>
-      {error && (
-        <p ref={errorRef} className="error">{error}</p>
-      )}
-      {message && (
-        <p ref={messageRef} className="message">{message}</p>
-      )}
+      {error && <p ref={errorRef} className="error">{error}</p>}
+      {message && <p ref={messageRef} className="message">{message}</p>}
+      
+      <Recaptcha onCaptchaVerified={onCaptchaVerified} />
+
       <input
         type="email"
         placeholder="Email"
@@ -89,7 +93,9 @@ const SignUp: React.FC<SignUpProps> = ({ captchaVerified }) => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <button onClick={handleSignUp} disabled={!captchaVerified}>Sign Up</button> {/* Disable if captcha is not verified */}
+      
+      <button onClick={handleSignUp} disabled={!captchaVerified}>Sign Up</button>
+      
       <p className="login-message">
         Already have an account? <Link to="/login">Login</Link>
       </p>

@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import { gsap } from 'gsap';
 
 interface RecaptchaProps {
-  onCaptchaVerified: (verified: boolean) => void; // Define the prop type
+  onCaptchaVerified: (verified: boolean) => void;
 }
 
 const Recaptcha: React.FC<RecaptchaProps> = ({ onCaptchaVerified }) => {
@@ -10,55 +11,63 @@ const Recaptcha: React.FC<RecaptchaProps> = ({ onCaptchaVerified }) => {
   const [captchaToken, setCaptchaToken] = useState<string>('');
   const [userInput, setUserInput] = useState<string>('');
   const [captchaValidated, setCaptchaValidated] = useState<boolean | null>(null);
-  const [captchaVerified, setCaptchaVerified] = useState<boolean>(false); // Track CAPTCHA verification
+  const [message, setMessage] = useState<string | null>(null);
+  const errorRef = useRef<HTMLParagraphElement | null>(null);
 
-  // Fetch the CAPTCHA challenge from the backend when the component loads
+  // Function to fetch a new CAPTCHA from the server
+  const fetchCaptcha = async () => {
+    try {
+      const response = await axios.get('http://localhost:3001/api/recaptcha/challenge');
+      setCaptchaImage(response.data.question); // Set new CAPTCHA question
+      setCaptchaToken(response.data.hash); // Set new token
+    } catch (error) {
+      console.error('Error fetching CAPTCHA', error);
+    }
+  };
+
+  // Fetch CAPTCHA when component first loads
   useEffect(() => {
-    const fetchCaptcha = async () => {
-      try {
-        const response = await axios.get('http://localhost:3001/api/recaptcha/challenge'); // Correct endpoint
-        setCaptchaImage(response.data.question); // Set the CAPTCHA image/question
-        setCaptchaToken(response.data.hash); // Set the token to send back
-      } catch (error) {
-        console.error('Error fetching CAPTCHA', error);
-      }
-    };
-
     fetchCaptcha();
   }, []);
 
-  // Handle form submission
+  // Handle CAPTCHA form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:3001/api/recaptcha/verify', {
-        answer: userInput,  // Send the user's input to be verified
-        hash: captchaToken,  // Send the hash provided by the server
+        answer: userInput,
+        hash: captchaToken,
       });
 
       if (response.data.success) {
         setCaptchaValidated(true);
-        setCaptchaVerified(true);  // CAPTCHA successfully verified
-        onCaptchaVerified(true); // Notify parent component that CAPTCHA is verified
-        alert('CAPTCHA passed!');
+        setMessage('CAPTCHA successfully passed!');
+        onCaptchaVerified(true); // Notify parent component of success
       } else {
         setCaptchaValidated(false);
-        setCaptchaVerified(false);  // CAPTCHA verification failed
-        alert('CAPTCHA failed. Please try again.');
+        setMessage('CAPTCHA failed. Try again.');
+        onCaptchaVerified(false); // Notify parent component of failure
+        gsap.fromTo(
+          errorRef.current,
+          { opacity: 0, y: -20 },
+          { opacity: 1, y: 0, duration: 0.5 }
+        );
+        fetchCaptcha(); // Fetch a new CAPTCHA without page reload
       }
     } catch (error) {
       console.error('Error verifying CAPTCHA', error);
       setCaptchaValidated(false);
-      setCaptchaVerified(false);  // CAPTCHA verification failed
+      setMessage('Error verifying CAPTCHA.');
+      onCaptchaVerified(false);
     }
   };
 
   return (
     <div>
-      <h3>Verify CAPTCHA</h3>
+      <h3>Solve the captcha first before entering email and password</h3>
       {captchaImage && (
         <div>
-          <p>{captchaImage}</p> {/* Display the CAPTCHA question here */}
+          <p>{captchaImage}</p> {/* Display the CAPTCHA question */}
         </div>
       )}
       <form onSubmit={handleSubmit}>
@@ -74,12 +83,11 @@ const Recaptcha: React.FC<RecaptchaProps> = ({ onCaptchaVerified }) => {
         <button type="submit">Submit</button>
       </form>
 
-      {/* CAPTCHA validation status */}
-      {captchaValidated === true && <p>CAPTCHA passed!</p>}
-      {captchaValidated === false && <p>CAPTCHA failed. Try again.</p>}
-
-      {/* Notify when CAPTCHA is not verified */}
-      {!captchaVerified && <p>Please complete the CAPTCHA to enable Sign Up/Login</p>}
+      {message && (
+        <p ref={errorRef} className={captchaValidated ? 'success-message' : 'error-message'}>
+          {message}
+        </p>
+      )}
     </div>
   );
 };

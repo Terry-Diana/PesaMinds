@@ -43,7 +43,6 @@ const Sidebar: React.FC = () => {
             Login/SignUp
           </Link>
         </li>
-
       </ul>
     </aside>
   );
