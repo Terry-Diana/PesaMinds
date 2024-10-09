@@ -13,12 +13,10 @@ import Blogs from "./Pages/Blogs/Blogs";
 import Home from "./Pages/Home/Home";
 import Login from "./Components/Auth/Login/Login";
 import SignUp from "./Components/Auth/SignUp/SignUp";
-import Recaptcha from "./Components/Recaptcha/Recaptcha";
 
 const App: React.FC = () => {
   const navigate = useNavigate();
-  const [captchaVerified, setCaptchaVerified] = useState(false); // State to track CAPTCHA verification
-
+  const [captchaVerified, setCaptchaVerified] = useState(false); 
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -46,14 +44,13 @@ const App: React.FC = () => {
       <div className="main-content">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login captchaVerified={captchaVerified} />} />
-          <Route path="/signup" element={<SignUp captchaVerified={captchaVerified} />} />
+          <Route  path="/login" element={<Login captchaVerified={captchaVerified} onCaptchaVerified={handleCaptchaVerified} />} />
+          <Route path="/signup" element={<SignUp captchaVerified={captchaVerified} onCaptchaVerified={handleCaptchaVerified} />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/blogs" element={<Blogs />} />
           {/* If no route matches, redirect to home */}
           <Route path="*" element={<Home />} />
         </Routes>
-        <Recaptcha onCaptchaVerified={handleCaptchaVerified} /> {/* Pass the handler function */}
       </div>
     </div>
   );
