@@ -23,19 +23,17 @@ const Recaptcha: React.FC<RecaptchaProps> = ({ onCaptchaVerified }) => {
       const response = await axios.get(
         "http://localhost:3001/api/recaptcha/challenge"
       );
-      setCaptchaImage(response.data.question); // Set new CAPTCHA question
-      setCaptchaToken(response.data.hash); // Set new token
+      setCaptchaImage(response.data.question); 
+      setCaptchaToken(response.data.hash); 
     } catch (error) {
       console.error("Error fetching CAPTCHA", error);
     }
   };
 
-  // Fetch CAPTCHA when component first loads
   useEffect(() => {
     fetchCaptcha();
   }, []);
 
-  // Clear message after a few seconds
   const clearMessage = () => {
     if (messageTimeoutRef.current) {
       clearTimeout(messageTimeoutRef.current);
@@ -43,15 +41,13 @@ const Recaptcha: React.FC<RecaptchaProps> = ({ onCaptchaVerified }) => {
     messageTimeoutRef.current = setTimeout(() => {
       setMessage(null);
       setCaptchaValidated(null);
-    }, 3000); // Clear after 3 seconds
+    }, 3000);
   };
 
-  // Handle CAPTCHA form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Submitting CAPTCHA verification...");
     try {
-      //console.log("CAPTCHA token:", token);
       const response = await axios.post(
         "http://localhost:3001/api/recaptcha/verify",
         {
@@ -65,37 +61,38 @@ const Recaptcha: React.FC<RecaptchaProps> = ({ onCaptchaVerified }) => {
         console.log("CAPTCHA verification successful");
         setCaptchaValidated(true);
         setMessage("CAPTCHA successfully passed!");
-        onCaptchaVerified(true); // Notify parent component of success
-        clearMessage(); // Clear success message after 3 seconds
+        onCaptchaVerified(true); 
+        clearMessage(); 
+        // Keep the userInput unchanged when CAPTCHA is correct
       } else {
         console.error("CAPTCHA verification failed:", response.data.error);
         // CAPTCHA verification failed
         setCaptchaValidated(false);
         setMessage("CAPTCHA failed. Try again.");
-        onCaptchaVerified(false); // Notify parent component of failure
+        onCaptchaVerified(false); 
         gsap.fromTo(
           errorRef.current,
           { opacity: 0, y: -20 },
           { opacity: 1, y: 0, duration: 0.5 }
         );
 
-        // Check if a new CAPTCHA challenge is provided in the response
         if (response.data.captcha) {
           setCaptchaImage(response.data.captcha.question);
           setCaptchaToken(response.data.captcha.hash);
         } else {
-          // If no new CAPTCHA is provided, fetch a new one
           fetchCaptcha();
         }
-        clearMessage(); // Clear error message after 3 seconds
+        setUserInput(""); // Clear the input when CAPTCHA verification fails
+        clearMessage(); 
       }
     } catch (error) {
       console.error("Error verifying CAPTCHA", error);
       setCaptchaValidated(false);
       setMessage("Error verifying CAPTCHA.");
       onCaptchaVerified(false);
-      fetchCaptcha(); // Refresh CAPTCHA in case of an error
-      clearMessage(); // Clear error message after 3 seconds
+      fetchCaptcha(); 
+      setUserInput(""); // Clear the input on error as well
+      clearMessage(); 
     }
   };
 
@@ -104,7 +101,7 @@ const Recaptcha: React.FC<RecaptchaProps> = ({ onCaptchaVerified }) => {
       <h3>Solve the captcha first before entering email and password</h3>
       {captchaImage && (
         <div>
-          <p>{captchaImage}</p> {/* Display the CAPTCHA question */}
+          <p>{captchaImage}</p> 
         </div>
       )}
       <form onSubmit={handleSubmit}>
